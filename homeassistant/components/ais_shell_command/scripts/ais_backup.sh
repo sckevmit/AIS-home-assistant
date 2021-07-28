@@ -1,5 +1,6 @@
 # AIS dom backup script to create bootstrap
-ais_pro=$(su -c cat /system/build.prop | grep 'ro.product.name=AISPRO1' | wc -l)
+# last change 2021/07/05 by AR
+ais_pro=$(su -c cat /system/build.prop | grep 'ro.product.name=AIS-PRO1' | wc -l)
 if [ $ais_pro -gt 0 ]; then
   echo "OK, let use 6 CPUs"
 else
@@ -18,6 +19,7 @@ rm -rf ~/.cache/pip/*
 pm2 delete tunnel
 pm2 delete ssh-tunnel
 pm2 delete zigbee
+pm2 delete zwave
 pm2 save
 pm2 stop ais
 pm2 flush
@@ -43,7 +45,7 @@ echo [] > ~/../myConnHist.json
 rm -rf /data/data/pl.sviete.dom/files/home/AIS/.dom/.ais*
 # create db settings for pro
 if [ $ais_pro -gt 0 ]; then
-  echo '{"dbEngine": "PostgreSQL", "dbDrive": "", "dbUrl": "postgresql://ais:dom@localhost/ha", "dbPassword": "dom", "dbUser": "ais", "dbServerIp": "localhost", "dbServerName": "ha", "dbKeepDays": "10", "errorInfo": ""}' >  /data/data/pl.sviete.dom/files/home/AIS/.dom/.ais_db_settings_info
+  echo '{ "dbShowLogbook": true, "dbShowHistory": true, "dbEngine": "PostgreSQL (local)", "dbDrive": "", "dbUrl": "postgresql://ais:dom@127.0.0.1/ha", "dbPassword": "dom", "dbUser": "ais", "dbServerIp": "127.0.0.1", "dbServerName": "ha", "dbKeepDays": "10", "errorInfo": ""}' >  /data/data/pl.sviete.dom/files/home/AIS/.dom/.ais_db_settings_info
 fi
 # 6. clear npm cache
 rm -rf /data/data/pl.sviete.dom/files/home/.npm/_cacache/*
@@ -56,7 +58,6 @@ rm /data/data/pl.sviete.dom/files/home/AIS/www/upgrade_log.txt
 rm /data/data/pl.sviete.dom/files/home/AIS/www/id_rsa_ais
 rm /data/data/pl.sviete.dom/files/home/AIS/www/*.png
 rm /data/data/pl.sviete.dom/files/home/AIS/www/*.jpeg
-rm -rf /data/data/pl.sviete.dom/files/usr/tmp/*
 
 # 8. rclone
 echo > /data/data/pl.sviete.dom/files/home/AIS/.dom/rclone.conf
@@ -77,6 +78,7 @@ echo "  base_topic: zigbee2mqtt" >> /data/data/pl.sviete.dom/files/home/zigbee2m
 echo "  server: 'mqtt://localhost'" >> /data/data/pl.sviete.dom/files/home/zigbee2mqtt/data/configuration.yaml
 echo "serial:" >> /data/data/pl.sviete.dom/files/home/zigbee2mqtt/data/configuration.yaml
 echo "  port: /dev/ttyACM0" >> /data/data/pl.sviete.dom/files/home/zigbee2mqtt/data/configuration.yaml
+echo "  adapter: null" >> /data/data/pl.sviete.dom/files/home/zigbee2mqtt/data/configuration.yaml
 echo "frontend:" >> /data/data/pl.sviete.dom/files/home/zigbee2mqtt/data/configuration.yaml
 echo "  port: 8099" >> /data/data/pl.sviete.dom/files/home/zigbee2mqtt/data/configuration.yaml
 echo "advanced:" >> /data/data/pl.sviete.dom/files/home/zigbee2mqtt/data/configuration.yaml
@@ -97,10 +99,27 @@ rm -rf /data/data/pl.sviete.dom/files/home/dom/dyski-wymienne/*
 rm -rf /data/data/pl.sviete.dom/files/home/dom/dyski-zewnętrzne/*
 rm -rf /data/data/pl.sviete.dom/files/home/dom/dyski-zdalne/*
 
-# 15. rm temps
+
+# 15. rm the ais_setup_wizard_done file
+rm /data/data/pl.sviete.dom/files/ais_setup_wizard_done
+
+
+# 16. recreate db
+if [ $ais_pro -gt 0 ]; then
+  # 17. clean DB
+  # # drop database ha
+  dropdb ha --force
+  createdb ha
+  psql -U ais -d ha -c "SELECT 'OK' as AIS_TEST;"
+fi
+
+
+# 17. rm temps
 rm -rf /data/data/pl.sviete.dom/files/home/dom/.temp
 rm -rf /data/data/pl.sviete.dom/files/usr/tmp/*
 
+# 18. drop tunnel
+rm -rf ~/.cloudflared
 
 # ON THE END -> create new bootstrap
 cd /data/data/pl.sviete.dom

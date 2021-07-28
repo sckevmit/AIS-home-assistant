@@ -42,7 +42,7 @@ REQUIRES = [
     "certifi>=2020.12.5",
     "ciso8601==2.1.3",
     "httpx==0.18.0",
-    "jinja2>=3.0.1",
+    "jinja2==3.0.1",
     "PyJWT==1.7.1",
     # PyJWT has loose dependency. We want the latest one.
     "cryptography==3.3.2",
@@ -53,7 +53,7 @@ REQUIRES = [
     "ruamel.yaml==0.15.100",
     "voluptuous==0.12.1",
     "voluptuous-serialize==2.4.0",
-    "ais-dom-frontend==20210603.5",
+    "ais-dom-frontend==20210707.2",
     "yarl==1.6.3",
     # AIS
     "aisapi==0.1.0",
