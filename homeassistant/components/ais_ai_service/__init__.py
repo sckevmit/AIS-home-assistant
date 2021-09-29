@@ -3126,7 +3126,7 @@ async def async_setup(hass, config):
     async_register(hass, INTENT_PLAY, ["Start", "Graj", "Odtwarzaj"])
     async_register(hass, INTENT_SCENE, ["Scena {item}", "Aktywuj [scenę] {item}"])
     async_register(
-        hass, INTENT_RUN_AUTOMATION, ["Uruchom {item}", "Automatyzacja {item}"]
+        hass, INTENT_RUN_AUTOMATION, ["Uruchom {item}", "Automatyzacja {item}", "Jolka {item}"]
     )
     async_register(hass, INTENT_ASK_GOOGLE, ["Google {item}"])
     async_register(
@@ -3289,16 +3289,17 @@ async def _publish_command_to_frame(hass, key, val, ip=None):
                 # r = requests.get('http://httpbin.org/status/404', timeout=10)
                 r = requests.get("http://" + gate_id + ".paczka.pro", timeout=10)
                 if r.status_code == 404:
-                    command = "pm2 restart tunnel || pm2 start /data/data/pl.sviete.dom/files/usr/bin/cloudflared" \
-                              " --name tunnel --output /dev/null --error /dev/null" \
-                              " --restart-delay=150000 -- --hostname http://{}.paczka.pro" \
-                              " --url http://localhost:8180".format(gate_id)
-                    subprocess.Popen(
-                        command,
-                        shell=True,  # nosec
-                        stdout=None,
-                        stderr=None,
-                    )
+                    pass
+                    # command = "pm2 restart tunnel || pm2 start /data/data/pl.sviete.dom/files/usr/bin/cloudflared" \
+                    #           " --name tunnel --output /dev/null --error /dev/null" \
+                    #           " --restart-delay=150000 -- --hostname http://{}.paczka.pro" \
+                    #           " --url http://localhost:8180".format(gate_id)
+                    # subprocess.Popen(
+                    #     command,
+                    #     shell=True,  # nosec
+                    #     stdout=None,
+                    #     stderr=None,
+                    # )
             except Exception:
                 pass
 
